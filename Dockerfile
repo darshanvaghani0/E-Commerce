@@ -1,4 +1,4 @@
-# Use the official Node.js image as the base image
+# Use the official Node.js image to build the React app
 FROM node:18-alpine AS build
 
 # Set the working directory inside the container
@@ -19,14 +19,20 @@ RUN npm run build
 # Use Nginx as the base image for serving the static files
 FROM nginx:alpine
 
-# Copy the built React app from the previous stage to Nginx's HTML folder
+# Set working directory
+WORKDIR /usr/share/nginx/html
+
+# Remove default Nginx static files
+RUN rm -rf ./*
+
+# Copy the built React app from the previous stage
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Copy custom Nginx configuration file if needed (optional)
-# COPY nginx.conf /etc/nginx/nginx.conf
+# Copy custom Nginx configuration to handle React routing
+COPY nginx.conf /etc/nginx/nginx.conf
 
-# Expose port 3000
-EXPOSE 3000
+# Expose the correct port for Cloud Run
+EXPOSE 8080
 
 # Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
