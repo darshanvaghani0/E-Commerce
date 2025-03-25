@@ -1,4 +1,4 @@
-# Use the official Node.js image to build the React app
+# Use the official Node.js image for building the React app
 FROM node:18-alpine AS build
 
 # Set the working directory inside the container
@@ -16,22 +16,22 @@ COPY . .
 # Build the React app
 RUN npm run build
 
-# Use Nginx as the base image for serving the static files
+# Use the official Nginx image for serving the static files
 FROM nginx:alpine
 
-# Set working directory
+# Set the working directory inside the container
 WORKDIR /usr/share/nginx/html
 
-# Remove default Nginx static files
+# Remove default Nginx static assets
 RUN rm -rf ./*
 
 # Copy the built React app from the previous stage
-COPY --from=build /app/build /usr/share/nginx/html
+COPY --from=build /app/build .
 
-# Copy custom Nginx configuration to handle React routing
+# Copy custom Nginx configuration file
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Expose the correct port for Cloud Run
+# Expose port 8080 (required by Google Cloud Run)
 EXPOSE 8080
 
 # Start Nginx
